@@ -3,21 +3,50 @@ import nltk
 from nltk.tokenize import sent_tokenize
 import re
 
+import requests
+from bs4 import BeautifulSoup
+
 import text2num as t2n
 
 from Quiz import Quiz
 from QuestionSentence import QuestionSentence
 
+
+def dbpedia(q):
+    q = q.replace(' ', '_')
+    url = 'http://dbpedia.org/page/{}'.format(q)
+    r = requests.get(url)
+    if r.status_code != 200:
+        return None
+
+    contents = r.content.decode('utf8')
+    soup = BeautifulSoup(contents, 'lxml')
+    
+    try:
+        abstract = soup.find('span', attrs={
+            "xml:lang": "en",
+            "property": "dbo:abstract"
+        })
+
+        text = abstract.text
+        return text
+    except Exception as e:
+        print(str(e))
+        return None
+
+
 class Article():
 
-    def __init__ (self, name):
+    def __init__(self, name):
         self.name = name
-        self.page = wiki.page(name)
+
+        self.page = dbpedia(name)
+        if self.page == None:
+            return
 
         self.quiz = Quiz([])
 
-        self.generate_questions_for(
-            self.page.content.encode('ascii', 'ignore'))
+        self.generate_questions_for(self.page.encode('utf8'))
 
     ''' 
     NOT CURRENTLY USED, but maye be useful at a later point when knowing the
@@ -28,22 +57,23 @@ class Article():
     #     for section in self.page.sections:
     #         print section
     #         sec = self.page.section(section).encode('ascii', 'ignore')
-    #         if sec is None: 
+    #         if sec is None:
     #             continue
     #         self.generate_questions_for(sec)
 
     '''
     tokenizes and chunks a sentence based on a simple grammar
     '''
+
     def get_question_data(self, s):
         tokens = nltk.word_tokenize(s)
         tagged = nltk.pos_tag(tokens)
-        grammar =   """  
+        grammar = """  
                     NUMBER: {<$>*<CD>+<NN>*}
                     LOCATION: {<IN><NNP>+<,|IN><NNP>+} 
                     PROPER: {<NNP|NNPS><NNP|NNPS>+}
-                    """       
-        # 
+                    """
+        #
         # HIT!: {<PROPER><NN>?<VBZ|VBN>+}
         # DATE: {<IN>(<$>*<CD>+<NN>*)}
 
@@ -55,27 +85,31 @@ class Article():
     splits a Wikipedia section into sentences and then chunks/tokenizes each
     sentence
     '''
+
     def generate_questions_for(self, sec):
         # Rid of all parentheses for easier processing
         _sec = "".join(re.split('\(', 
             sec.decode("utf-8").replace(")", "("))[0::2])
 
-        for sentence in sent_tokenize(_sec):
-            if "==" not in sentence:
-                qdata = self.get_question_data(sentence)
-                if len(qdata) >= 75 and len(qdata) <= 150:
-                    qdata = []
+        print(_sec)
 
-                self.create_questions(sentence, qdata)
+        for sentence in sent_tokenize(_sec):
+            qdata = self.get_question_data(sentence)
+            if len(qdata) >= 75 and len(qdata) <= 150:
+                qdata = []
+
+            self.create_questions(sentence, qdata)
 
     '''
     given a setence in chunked and original form, produce the params necessary
     to create a Question, and then add that to our Quiz object
     '''
+
     def create_questions(self, sentence, chunked):
         gaps = []
+
         for word in chunked:
-            if type(word) != tuple:                
+            if type(word) != tuple:
                 target = []
                 for y in word:
                     target.append(y[0])
@@ -89,9 +123,10 @@ class Article():
                         modified_phrase = t2n.text2num(phrase)
                     except:
                         try:
-                            test = int(modified_phrase) + float(modified_phrase)
+                            test = int(modified_phrase) + \
+                                float(modified_phrase)
                         except:
-                            # if the word could not be converted and 
+                            # if the word could not be converted and
                             # was not already numerical, ignore it
                             continue
 
@@ -99,18 +134,22 @@ class Article():
                         return
 
                     gaps.append((word.label(), orig_phrase, modified_phrase))
-                elif word.label() in ["LOCATION", "PROPER"]: 
+                elif word.label() in ["LOCATION", "PROPER"]:
                     gaps.append((word.label(), orig_phrase, orig_phrase))
 
-        if len(gaps) >= 2 and len(gaps) == len(set(gaps)):
-            gaps_filtered = [gap for gap in gaps if gap[0] == 'NUMBER' or gap[0] == 'LOCATION']
-            if len(gaps_filtered) and len(gaps) - len(gaps_filtered) > 2:
+        if len(gaps) >= 1 and len(gaps) == len(set(gaps)):
+
+            gaps_filtered = [gap for gap in gaps if gap[0]
+                             == 'NUMBER' or gap[0] == 'LOCATION']
+            
+            if len(gaps_filtered):
                 self.quiz.add(QuestionSentence(sentence, gaps_filtered))
 
     '''
     Wikipedia returns non-hyphenated number ranges, so we need to check for mushed together years
     and remove them. Not a complete solution to the problem, but most of the incidents are years
-    ''' 
+    '''
+
     def probably_range(self, val):
         s = str(val)
         if s.count("19") > 1 or s.count("20") > 1 or (s.count("19") == 1 and s.count("20") == 1):
