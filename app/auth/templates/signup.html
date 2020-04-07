@@ -1,0 +1,87 @@
+{% extends "layout.html" %}
+
+{% block content %}
+  <div class="eight columns offset-by-two">
+    <div class="row" style="padding-top: 5em;">
+      <form method="POST" class="sign-form card">
+        {{ form.csrf_token }}
+  <!-- 
+        <div class="logo">
+          <img src="{{ url_for('static', filename='dist/img/logo.png') }}">
+        </div> -->
+  
+        {% for message in get_flashed_messages() %}
+          <div class="alert alert-warning">
+              <button type="button" class="close" data-dismiss="alert">&times;</button>
+              {{ message }}
+          </div>
+        {% endfor %}
+  
+        <h2>Sign Up</h2>
+  
+        <fieldset class="row name">
+          <div class="six columns">
+            {{ form.first_name(placeholder='First Name*', class_='u-full-width') }}
+          </div>
+          <div class="six columns">
+            {{ form.last_name(placeholder='Last Name*', class_='u-full-width') }}
+          </div>
+          {% if form.first_name.errors %}
+            <ul class="alert alert-error">
+              {% for error in form.username.errors %}<li>{{ error }}</li>{% endfor %}
+            </ul>
+          {% endif %}
+          {% if form.last_name.errors %}
+            <ul class="alert alert-error">
+              {% for error in form.username.errors %}<li>{{ error }}</li>{% endfor %}
+            </ul>
+          {% endif %}
+        </fieldset>
+        
+        <fieldset class="row username">
+          {{ form.username(placeholder='Username*', class_='u-full-width') }}
+          {% if form.username.errors %}
+            <ul class="alert alert-error">
+              {% for error in form.username.errors %}<li>{{ error }}</li>{% endfor %}
+            </ul>
+          {% endif %}
+        </fieldset>
+  
+        <fieldset class="row password">
+          {{ form.password(placeholder='Password*', class_='u-full-width') }}
+          {% if form.password.errors %}
+            <ul class="alert alert-error">
+              {% for error in form.password.errors %}<li>{{ error }}</li>{% endfor %}
+            </ul>
+          {% endif %}
+        </fieldset>
+  
+        <fieldset class="row confirm">
+          {{ form.confirm(placeholder='Confirm Password*', class_='u-full-width') }}
+          {% if form.confirm.errors %}
+            <ul class="alert alert-error">
+              {% for error in form.confirm.errors %}<li>{{ error }}</li>{% endfor %}
+            </ul>
+          {% endif %}
+        </fieldset>
+  
+        <fieldset>
+          <span>* Required</span>
+        </fieldset>
+  
+        <div class="submitbutton">
+          <div class="submitbutton">
+            {{ form.submit() }}
+          </div>
+        </div>
+
+        <div class="loginsignup">
+          <span>Already have an account? <a href="{{ url_for('auth_bp.login') }}">Log in.</a></span>
+        </div>
+  
+      </form>
+  
+      
+    </div>
+  </div>
+{% endblock %}

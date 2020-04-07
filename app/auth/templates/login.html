@@ -1,0 +1,52 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="eight columns offset-by-two">
+  <div class="row" style="padding-top: 5em;">
+    <form method="POST" class="sign-form card">
+      {{ form.csrf_token }}
+
+
+      <!-- <div class="logo">
+        <img src="{{ url_for('static', filename='dist/img/logo.png') }}">
+      </div> -->
+
+      {% for message in get_flashed_messages() %}
+      <div class="alert alert-warning">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        {{ message }}
+      </div>
+      {% endfor %}
+
+      <h2>Log In</h2>
+
+      <fieldset class="row username">
+        {{ form.username(placeholder='Username*', class_='u-full-width') }}
+        {% if form.username.errors %}
+        <ul class="errors">
+          {% for error in form.username.errors %}<li>{{ error }}</li>{% endfor %}
+        </ul>
+        {% endif %}
+      </fieldset>
+
+      <fieldset class="row password">
+        {{ form.password(placeholder='Password*', class_='u-full-width') }}
+        {% if form.username.errors %}
+        <ul class="errors">
+          {% for error in form.password.errors %}<li>{{ error }}</li>{% endfor %}
+        </ul>
+        {% endif %}
+      </fieldset>
+
+      <div class="submitbutton">
+        {{ form.submit() }}
+      </div>
+
+      <div class="loginsignup">
+        <span>Don't have an account? <a href="{{ url_for('auth_bp.signup') }}">Sign up.</a></span>
+      </div>
+
+    </form>
+  </div>
+</div>
+{% endblock %}
