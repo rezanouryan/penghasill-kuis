@@ -12,10 +12,10 @@
                           <span class="avatar" style="background-image: url(/static/assets/demo/faces/female/25.jpg)"></span>
                           <span class="ml-2 d-none d-lg-block">
                             <span class="text-default">
-                                {{ current_user.first_name }}
+                                {{ current_user.first_name }} {{ current_user.last_name }}
                             </span>
                             <small class="text-muted d-block mt-1">
-                                {{ current_user.last_name }}
+                                {{ current_user.roles }}
                             </small>
                           </span>
                         </a>

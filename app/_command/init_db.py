@@ -4,7 +4,7 @@ from flask import current_app
 from flask_script import Command
 
 from app import db
-from app.models import User, Role, Quiz, Question, student_enroll
+from app.models import User, Role, Quiz, Question, StudentEnroll
 
 
 class InitDbCommand(Command):
@@ -33,10 +33,12 @@ def create_users():
     # Add users
     admin = find_or_create_user(
         'Admin', 'istrator', 'admin', 'Password1', admin_role)
-    user = find_or_create_user(
+    user_1 = find_or_create_user(
         'Member', 'ship', 'member1', 'Password1')
-    user = find_or_create_user(
+    user_2 = find_or_create_user(
         'Member2', 'ship2', 'member2', 'Password2')
+    user_3 = find_or_create_user(
+        'Member3', 'ship3', 'member3', 'Password3')
 
     question_list_1 = [
         (
@@ -60,7 +62,6 @@ def create_users():
             "Option 3",
             "2"
         )
-
     ]
 
     question_list_2 = [
@@ -92,17 +93,76 @@ def create_users():
             "Option 3",
             "3"
         )
+    ]
 
+    question_list_3 = [
+        (
+            "Example Question 1",
+            "Option 1",
+            "Option 2",
+            "Option 3",
+            "1"
+        ),
+        (
+            "Example Question 2",
+            "Option 1",
+            "Option 2",
+            "Option 3",
+            "2"
+        ),
+        (
+            "Example Question 3",
+            "Option 1",
+            "Option 2",
+            "Option 3",
+            "3"
+        ),
+        (
+            "Example Question 4",
+            "Option 1",
+            "Option 2",
+            "Option 3",
+            "3"
+        )
     ]
 
 
     deadline_1 = datetime.datetime(2020, 4, 10)
     deadline_2 = datetime.datetime(2020, 4, 11)
+    deadline_3 = datetime.datetime(2020, 3, 31)
+
     quiz_1 = find_or_create_quiz('Topic 1', 'QT34A23', question_list_1, deadline_1)
     quiz_2 = find_or_create_quiz('Topic 2', 'QT34F13', question_list_2, deadline_2)
+    quiz_3 = find_or_create_quiz('Topic 3', 'QT34B22', question_list_3, deadline_1)
+    quiz_4 = find_or_create_quiz('Topic 3', 'QT34B22', question_list_1, deadline_2)
+    quiz_5 = find_or_create_quiz('Topic 3', 'QT34B22', question_list_2, deadline_3)
 
-    user.quizzes.append(quiz_2)
 
+    # Scenario 1: user_1 enrolled quiz_1 but didn't start
+    user_1.quizzes.append(quiz_1)
+
+    # Scenario 2: user_1 not enrolled other quiz
+    
+    # Scenario 3: user_1 enrolled expired deadline quiz
+    user_1.quizzes.append(quiz_5)
+    
+    # Scenario 4: user_1 enrolled quiz_2, already start quiz
+    user_1.quizzes.append(quiz_2)
+    student_enrollment = StudentEnroll.select_by_user_and_quiz(user_1, quiz_2)
+    student_enrollment.score_uptilnow = 10
+    
+    # Scenario 5: user_1 enrolled quiz_3, completed
+    user_1.quizzes.append(quiz_3)
+    student_enrollment_2 = StudentEnroll.select_by_user_and_quiz(user_1, quiz_3)
+    student_enrollment_2.attempt = 1
+    student_enrollment_2.high_score = 3
+
+
+    user_2.quizzes.append(quiz_1)
+    user_3.quizzes.append(quiz_5)
+
+
+    # User.query.with_parent(data['upcoming_quizzes'][i])
     # Save to DB
     db.session.commit()
 

@@ -3,6 +3,7 @@ from flask_user import roles_required
 from flask import current_app
 from ..models import User, Quiz, db
 from datetime import datetime
+from .admin_forms import AddQuizForm
 
 # Set up blueprint
 admin_bp = Blueprint('admin_bp', __name__, template_folder='templates', static_folder='static')
@@ -27,5 +28,10 @@ def dashboard():
         data['upcoming_quizzes'][i].users_enrolled = User.query.with_parent(data['upcoming_quizzes'][i]).count()
         print(data['upcoming_quizzes'][i].enroll_code)
 
-    return render_template('index.html', **data)
+    data['leaderboard'] = User.get_leaderboard()
+
+    data['add_quiz_form'] = AddQuizForm()
+    # print(data['leaderboard'])
+
+    return render_template('index_admin.html', **data)
 
