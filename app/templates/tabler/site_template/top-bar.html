@@ -15,7 +15,7 @@
                                 {{ current_user.first_name }} {{ current_user.last_name }}
                             </span>
                             <small class="text-muted d-block mt-1">
-                                {{ current_user.roles }}
+                                {{ current_user.roles[0].label }}
                             </small>
                           </span>
                         </a>
@@ -31,7 +31,7 @@
                           <a class="dropdown-item" href="https://appseed.us/support">
                             <i class="dropdown-icon fe fe-help-circle"></i> Support
                           </a>
-                          <a class="dropdown-item" href={{ url_for('auth_bp.logout') }} >
+                          <a class="dropdown-item" href='{{ url_for("auth_bp.logout") }}' >
                             <i class="dropdown-icon fe fe-log-out"></i> Sign out
                           </a>
                         </div>

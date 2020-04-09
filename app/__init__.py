@@ -6,13 +6,15 @@ from flask_migrate import Migrate, MigrateCommand
 from flask_user import UserManager
 from flask_wtf.csrf import CSRFProtect
 from flask_login import LoginManager
-
+import pytz
 
 csrf_protect = CSRFProtect()
 db = SQLAlchemy()
 mail = Mail()
 migrate = Migrate()
 login_manager = LoginManager()
+local_timezone = pytz.timezone('Asia/Jakarta')
+
 
 
 def register_all_blueprints(app):
@@ -61,10 +63,11 @@ def create_app(extra_config_settings={}):
 
     @app.context_processor
     def context_processor():
-        return dict(user_manager=user_manager)
+        def local_time(utc):
+            local = utc.astimezone(local_timezone)
+            return local.strftime('%B %d, %Y %X %Z')
 
-   
-
+        return dict(user_manager=user_manager, local_time=local_time)
 
 
     return app

@@ -188,8 +188,8 @@
               <i class="fe fe-message-square"></i>
             </span>
             <div>
-              <h4 class="m-0"><a href="javascript:void(0)">{{ quizzes_created }} <small>Quizzes Created</small></a></h4>
-              <small class="text-muted">{{ quizzes_completed }} completed</small>
+              <h4 class="m-0"><a href="javascript:void(0)">{{ ct_quizzes_created }} <small>Quizzes Created</small></a></h4>
+              <small class="text-muted">{{ ct_quizzes_completed }} completed</small>
             </div>
           </div>
         </div>
@@ -212,6 +212,7 @@
             <table class="table table-hover table-outline table-vcenter text-nowrap card-table">
               <thead>
                 <tr>
+                  <th>Quiz Name</th>
                   <th>Topic</th>
                   <th>Date Created</th>
                   <th>Deadline</th>
@@ -224,12 +225,15 @@
                 {% for quiz in upcoming_quizzes %}
                 <tr>
                   <td>
+                    <div>{{quiz.name}}</div>
+                  </td>
+                  <td>
                     <div>{{quiz.topic}}</div>
                   </td>
                   <td>
                     <div class="clearfix">
                       <div class="float-left">
-                        <span>{{quiz.date_created}} </span>
+                        <span>{{ local_time(quiz.date_created) }} </span>
                       </div>
 
                     </div>
@@ -237,7 +241,7 @@
                   <td class="text-center">
                     <div class="clearfix">
                       <div class="float-left">
-                        <strong> {{quiz.deadline}} </strong>
+                        <strong> {{ local_time(quiz.deadline) }} </strong>
                       </div>
                     </div>
                   </td>
@@ -267,7 +271,13 @@
                   </td>
                 </tr>
                 {% endfor %}
-                <tr></tr>
+                <tr>
+                  <td colspan="7">
+                    <div style="text-align: center;">
+                      <a href=""> View more</a>
+                    </div>
+                  </td>
+                </tr>
 
               </tbody>
             </table>
@@ -275,23 +285,90 @@
         </div>
       </div>
 
+      <div class="col-8">
 
-      <div class="col-12">
         <div class="card">
           <div class="card-header">
-            <h3 class="card-title">Leaderboard</h3>
+            <h4 class="card-title">Expired Quizzes</h4>
+           
           </div>
           <div class="table-responsive">
-            <table class="table card-table table-vcenter text-nowrap datatable">
+            <table class="table table-hover table-outline table-vcenter text-nowrap card-table">
+              <thead>
+                <tr>
+                  <th>Quiz Name</th>
+                  <th>Topic</th>
+                  <th>Deadline</th>
+                  <th>Summary</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for quiz in completed_quizzes %}
+                <tr>
+                  <td>
+                    <div>{{quiz.name}}</div>
+                  </td>
+                  <td>
+                    <div>{{quiz.topic}}</div>
+                  </td>
+                  <td class="text-center">
+                    <div class="clearfix">
+                      <div class="float-left">
+                        <strong> {{ local_time(quiz.deadline) }} </strong>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="small text-muted">Student enrolled</div>
+                    <div>{{quiz.users_enrolled}} student(s)</div>
+                  </td>
+                  <td class="text-center">
+                    <div class="item-action dropdown">
+                      <a href="javascript:void(0)" data-toggle="dropdown" class="icon"><i
+                          class="fe fe-more-vertical"></i></a>
+                      <div class="dropdown-menu dropdown-menu-right">
+                        <a href="javascript:void(0)" class="dropdown-item"><i class="dropdown-icon fe fe-tag"></i>
+                          Action </a>
+                        <a href="javascript:void(0)" class="dropdown-item"><i class="dropdown-icon fe fe-edit-2"></i>
+                          Another action </a>
+                        <a href="javascript:void(0)" class="dropdown-item"><i
+                            class="dropdown-icon fe fe-message-square"></i> Something else here</a>
+                        <div class="dropdown-divider"></div>
+                        <a href="javascript:void(0)" class="dropdown-item"><i class="dropdown-icon fe fe-link"></i>
+                          Separated link</a>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
+                <tr>
+                  <td colspan="5">
+                    <div style="text-align: center;">
+                      <a href=""> View more</a>
+                    </div>
+                  </td>
+                </tr>
+
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-4">
+        <div class="card">
+          <div class="card-header">
+            <h4 class="card-title">Leaderboard</h4>
+           
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover table-outline table-vcenter text-nowrap card-table">
               <thead>
                 <tr>
                   <th class="w-1">No.</th>
-                  <th>First Name</th>
-                  <th>Last Name</th>
                   <th>Username</th>
                   <th>Point(s) Collected</th>
-                  <!-- <th></th>
-                      <th></th> -->
                 </tr>
               </thead>
               <tbody>
@@ -299,42 +376,27 @@
                 <tr>
                   <td><span class="text-muted">{{ i + 1}}</span></td>
                   <td>
-                    {{ leaderboard[i].first_name }}
-                  </td>
-                  <td>
-                    {{ leaderboard[i].last_name }}
-                  </td>
-                  <td>
                     {{ leaderboard[i].username }}
                   </td>
                   <td>
                     {{ leaderboard[i][-1] }}
                   </td>
-                  <!-- <td>$887</td>
-                      <td class="text-right">
-                        <a href="javascript:void(0)" class="btn btn-secondary btn-sm">Manage</a>
-                        <div class="dropdown">
-                          <button class="btn btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown">Actions</button>
-                        </div>
-                      </td>
-                      <td>
-                        <a class="icon" href="javascript:void(0)">
-                          <i class="fe fe-edit"></i>
-                        </a>
-                      </td> -->
                 </tr>
                 {% endfor %}
+                <tr>
+                  <td colspan="3">
+                    <div style="text-align: center;">
+                      <a href="">View more</a>
+                    </div>
+                  </td>
+                </tr>
 
               </tbody>
             </table>
-            <script>
-              require(['datatables', 'jquery'], function (datatable, $) {
-                $('.datatable').DataTable();
-              });
-            </script>
           </div>
         </div>
       </div>
+
     </div>
 
   </div>
@@ -373,34 +435,6 @@
     </div>
   </div>
 
-  <div class="bottombar js-bottombar" style="display: none">
-    <a href="#" class="bottombar-close js-bottombar-close">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x">
-        <line x1="18" y1="6" x2="6" y2="18"></line>
-        <line x1="6" y1="6" x2="18" y2="18"></line>
-      </svg>
-    </a>
-    <div class="container position-relative d-flex align-items-center">
-      <a href="https://gumroad.com/l/tabler-email?utm_source=demo" class="bottombar-image">
-        <picture>
-          <source srcset="https://tabler.io/img/bottombar.webp" type="image/webp">
-          <source srcset="https://tabler.io/img/bottombar.png" type="image/jpeg">
-          <img src="https://tabler.io/img/bottombar.png" alt="">
-        </picture>
-      </a>
-      <div class="d-lg-flex flex-fill align-items-center">
-        <div class="mr-2">
-          50 eye-catching templates tested in 90+ email clients. Compose your own, mobile optimized email message in
-          less than 5 minutes!
-        </div>
-        <div class=" ml-auto mt-2 mt-lg-0">
-          <a href="https://gumroad.com/l/tabler-email?utm_source=demo" class="btn btn-sm btn-green text-nowrap"
-            target="_blank">More info</a>
-        </div>
-      </div>
-    </div>
-  </div>
 
 </div>
 

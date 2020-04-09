@@ -104,7 +104,7 @@ class User(UserMixin, db.Model):
                             backref=db.backref('users', lazy=True))
 
     quizzes = db.relationship(
-        'Quiz', secondary='student_enroll', backref=db.backref('quizzes', lazy='joined'))
+        'Quiz', secondary='student_enroll')
 
     def check_password(self, plain_password):
         return current_app.user_manager.password_manager.verify_password(plain_password, self.password)
@@ -120,6 +120,16 @@ class User(UserMixin, db.Model):
             return role in (role.name for role in self.roles)
         else:
             return role in self.roles
+
+    @staticmethod
+    def get_student_completed_quiz_list(quiz_obj):
+        return User\
+            .query\
+            .outerjoin(StudentEnroll, User.id==StudentEnroll.user_id)\
+            .with_parent(quiz_obj)\
+            .filter(User.roles == None, StudentEnroll.attempt > 0)\
+            .all()
+
 
     @staticmethod
     def get_leaderboard():
@@ -175,14 +185,29 @@ class Quiz(db.Model):
     __tablename__ = 'quizzes'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(200))
     topic = db.Column(db.String(200))
     enroll_code = db.Column(db.String(), unique=True)
 
-    date_created = db.Column(db.DateTime, default=datetime.utcnow)
+    date_created = db.Column(db.DateTime, default=func.now())
     deadline = db.Column(db.DateTime)
 
     questions = db.relationship(Question, lazy='subquery',
                                 backref=db.backref('questions', lazy=True))
 
     users = db.relationship(
-        'User', secondary='student_enroll', backref=db.backref('users', lazy='joined'))
+        'User', secondary='student_enroll')
+
+    @staticmethod
+    def get_upcoming_quizzes():
+        return Quiz.query.filter(datetime.now() < Quiz.deadline).order_by(Quiz.deadline).all()
+
+    @staticmethod
+    def get_completed_quizzes():
+        return Quiz.query.filter(datetime.now() > Quiz.deadline).order_by(Quiz.deadline).all()
+
+
+
+
+
+    

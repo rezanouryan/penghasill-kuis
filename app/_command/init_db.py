@@ -1,10 +1,12 @@
 import datetime
+import pytz
 
 from flask import current_app
 from flask_script import Command
 
 from app import db
 from app.models import User, Role, Quiz, Question, StudentEnroll
+
 
 
 class InitDbCommand(Command):
@@ -126,16 +128,21 @@ def create_users():
         )
     ]
 
+    local = pytz.timezone('Asia/Jakarta')
 
-    deadline_1 = datetime.datetime(2020, 4, 10)
-    deadline_2 = datetime.datetime(2020, 4, 11)
-    deadline_3 = datetime.datetime(2020, 3, 31)
+    deadline_1 = local.localize(datetime.datetime(2020, 4, 10), is_dst=None)
+    deadline_2 = local.localize(datetime.datetime(2020, 4, 11), is_dst=None)
+    deadline_3 = local.localize(datetime.datetime(2020, 3, 31), is_dst=None)
 
-    quiz_1 = find_or_create_quiz('Topic 1', 'QT34A23', question_list_1, deadline_1)
-    quiz_2 = find_or_create_quiz('Topic 2', 'QT34F13', question_list_2, deadline_2)
-    quiz_3 = find_or_create_quiz('Topic 3', 'QT34B22', question_list_3, deadline_1)
-    quiz_4 = find_or_create_quiz('Topic 3', 'QT34B22', question_list_1, deadline_2)
-    quiz_5 = find_or_create_quiz('Topic 3', 'QT34B22', question_list_2, deadline_3)
+    deadline_1 = deadline_1.astimezone(pytz.utc) - datetime.timedelta(seconds=1)
+    deadline_2 = deadline_2.astimezone(pytz.utc) - datetime.timedelta(seconds=1)
+    deadline_3 = deadline_3.astimezone(pytz.utc) - datetime.timedelta(seconds=1)
+
+    quiz_1 = find_or_create_quiz('Quiz Class 1', 'Topic 1', 'QT34A23', question_list_1, deadline_1)
+    quiz_2 = find_or_create_quiz('Quiz Class 2', 'Topic 2', 'QT34F13', question_list_2, deadline_2)
+    quiz_3 = find_or_create_quiz('Quiz Class 3', 'Topic 3', 'QT34B22', question_list_3, deadline_1)
+    quiz_4 = find_or_create_quiz('Quiz Class 4', 'Topic 4', 'QT32B22', question_list_1, deadline_2)
+    quiz_5 = find_or_create_quiz('Quiz Class 5', 'Topic 5', 'QT34B21', question_list_2, deadline_3)
 
 
     # Scenario 1: user_1 enrolled quiz_1 but didn't start
@@ -192,10 +199,10 @@ def find_or_create_user(first_name, last_name, username, password, role=None):
     return user
 
 
-def find_or_create_quiz(topic, enroll_code, question_list=None, deadline=None):
+def find_or_create_quiz(name, topic, enroll_code, question_list=None, deadline=None):
     quiz = Quiz.query.filter(Quiz.topic == topic).first()
     if not quiz:
-        quiz = Quiz(topic=topic, enroll_code=enroll_code)
+        quiz = Quiz(name=name, topic=topic, enroll_code=enroll_code)
         if question_list:
             for question, opt1, opt2, opt3, answer in question_list:
                 quest = Question(question=question,

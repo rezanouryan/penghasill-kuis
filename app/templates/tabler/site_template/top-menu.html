@@ -16,10 +16,16 @@
                           <a href="/" class="nav-link active"><i class="fe fe-home"></i> Home</a>
                         </li>
                         <li class="nav-item dropdown">
-                          <a href="/ui-form-elements" class="nav-link"><i class="fe fe-check-square"></i> Quizzes</a>
+                          <a href="{{ url_for('student_bp.quizzes') if current_user.roles == None else url_for('admin_bp.quizzes') }}" class="nav-link"><i class="fe fe-check-square"></i> Quizzes</a>
                         </li>
+                        {% if current_user.roles and current_user.roles[0].name == 'admin' %}
+                        <li class="nav-item dropdown">
+                          <a href="{{ url_for('admin_bp.user_management') }}" class="nav-link"><i class="fe fe-users"></i> User Management</a>
+                        </li>
+                        {% endif %}
+
                         <li class="nav-item">
-                          <a href="/ui-gallery" class="nav-link"><i class="fe fe-file"></i> Leaderboard</a>
+                          <a href="{{ url_for('main_bp.leaderboard') }}" class="nav-link"><i class="fe fe-file"></i> Leaderboard</a>
                         </li>
 
                       </ul>
