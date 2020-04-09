@@ -3,6 +3,8 @@ from datetime import datetime
 from flask_user import UserMixin
 from flask import current_app
 from sqlalchemy import func, desc
+from .serverside import table_schemas
+from .serverside.serverside_table import ServerSideTable
 
 
 # Relationship table:
@@ -125,11 +127,10 @@ class User(UserMixin, db.Model):
     def get_student_completed_quiz_list(quiz_obj):
         return User\
             .query\
-            .outerjoin(StudentEnroll, User.id==StudentEnroll.user_id)\
+            .outerjoin(StudentEnroll, User.id == StudentEnroll.user_id)\
             .with_parent(quiz_obj)\
             .filter(User.roles == None, StudentEnroll.attempt > 0)\
             .all()
-
 
     @staticmethod
     def get_leaderboard():
@@ -198,6 +199,25 @@ class Quiz(db.Model):
     users = db.relationship(
         'User', secondary='student_enroll')
 
+    
+    @property
+    def is_expired(self):
+        return True if datetime.now() > self.deadline else False
+
+    @staticmethod
+    def get_quiz_in_datatables():
+        
+        return
+
+    @staticmethod
+    def collect_data_clientside():
+        return {'data': Quiz.get_quiz_in_datatables()}
+
+    @staticmethod
+    def collect_data_serverside(self, request):
+        columns = table_schemas.SERVERSIDE_QUIZZES_COLUMNS
+        return ServerSideTable(request, Quiz.get_quiz_in_datatables(), columns).output_result()
+
     @staticmethod
     def get_upcoming_quizzes():
         return Quiz.query.filter(datetime.now() < Quiz.deadline).order_by(Quiz.deadline).all()
@@ -205,9 +225,3 @@ class Quiz(db.Model):
     @staticmethod
     def get_completed_quizzes():
         return Quiz.query.filter(datetime.now() > Quiz.deadline).order_by(Quiz.deadline).all()
-
-
-
-
-
-    

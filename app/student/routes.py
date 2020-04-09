@@ -35,7 +35,7 @@ def dashboard():
 
     return render_template('index_student.html', **data)
 
-@student_bp.route('/student/quizzes', methods=['GET'])
+@student_bp.route('/student/quiz-management', methods=['GET'])
 @login_required
 def quizzes():
     pass

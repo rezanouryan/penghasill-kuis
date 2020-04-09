@@ -5,6 +5,8 @@ from wtforms.validators import DataRequired, Email, EqualTo, Length, Optional
 
 class AddQuizForm(FlaskForm):
     """Add new quiz form."""
+    name = StringField('Quiz Name',
+                       validators=[DataRequired()])
     topic = StringField('Topic',
                        validators=[DataRequired()])
     deadline = DateField('Deadline', format='%Y-%m-%d',

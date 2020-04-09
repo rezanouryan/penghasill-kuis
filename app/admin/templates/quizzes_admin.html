@@ -1,0 +1,125 @@
+{% extends "tabler/base-site.html" %}
+
+{% block title %} Quiz Management {% endblock %}
+
+{% block content %}
+
+<div class="my-3 my-md-5">
+
+  <div class="container">
+    <div class="row row-cards">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Quiz Management</h3>
+            <div class="card-options">
+              <a href='#' data-toggle="modal" data-target="#addQuizForm" class="btn btn-primary btn-sm"><i class="fe fe-plus"></i> Add New Quiz</a>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <div id="DataTables_Table_0_wrapper" class="dataTables_wrapper no-footer">
+             
+              <table class="table card-table table-vcenter text-nowrap datatable dataTable no-footer"
+                id="DataTables_Table_Quiz" role="grid" aria-describedby="DataTables_Table_Quiz_info">
+                <thead>
+                  <tr role="row">
+                    <th class="sorting" tabindex="0" aria-controls="DataTables_Table_Quiz" rowspan="1" colspan="1"
+                      aria-label="Invoice Subject: activate to sort column ascending" style="width: 171px;">Quiz Name</th>
+                    <th class="sorting" tabindex="0" aria-controls="DataTables_Table_Quiz" rowspan="1" colspan="1"
+                      aria-label="Client: activate to sort column ascending" style="width: 130px;">Topic</th>
+                    <th class="sorting" tabindex="0" aria-controls="DataTables_Table_Quiz" rowspan="1" colspan="1"
+                      aria-label="VAT No.: activate to sort column ascending" style="width: 81px;">Enroll Code</th>
+                    <th class="sorting" tabindex="0" aria-controls="DataTables_Table_Quiz" rowspan="1" colspan="1"
+                      aria-label="Created: activate to sort column ascending" style="width: 103px;">Date Created</th>
+                    <th class="sorting" tabindex="0" aria-controls="DataTables_Table_Quiz" rowspan="1" colspan="1"
+                      aria-label="Status: activate to sort column ascending" style="width: 146px;">Deadline</th>
+                    <th class="sorting" tabindex="0" aria-controls="DataTables_Table_Quiz" rowspan="1" colspan="1"
+                      aria-label="Price: activate to sort column ascending" style="width: 54px;">Status</th>
+                    <th class="sorting" tabindex="0" aria-controls="DataTables_Table_Quiz" rowspan="1" colspan="1"
+                      aria-label=": activate to sort column ascending" style="width: 175px;">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  
+                </tbody>
+              </table>
+              
+            </div>
+            <script>
+              require(['datatables', 'jquery'], function (datatable, $) {
+                $('.datatable').DataTable({
+                  "processing": true,
+                  "serverSide": true,
+                  "sPaginationType": "full_numbers",
+                  "lengthMenu": [[10, 25, 50, 100], [10, 25, 50, 100]],
+                  "bjQueryUI": true,
+                  "sAjaxSource": '{{ url_for("admin_bp.list_quiz_serverside") }}',
+                  "columns": [
+                    { "data": "Quiz Name" },
+                    { "data": "Topic" },
+                    { "data": "Enroll Code"},
+                    { "data": "Date Created" },
+                    { "data": "Deadline" },
+                    { "data": "Status"},
+                    { "data": "Action"}
+                  ]
+                });
+              });
+            </script>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+{% include "components/addquizbox_modal.html" %}
+
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+<script>
+  require(['jquery'], function () {
+    $(document).ready(function () {
+
+      function setCookie(name, value, days) {
+        var expires = "";
+        if (days) {
+          var date = new Date();
+          date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+          expires = "; expires=" + date.toUTCString();
+        }
+        document.cookie = name + "=" + (value || "") + expires + "; path=/";
+      }
+
+      function getCookie(name) {
+        var nameEQ = name + "=";
+        var ca = document.cookie.split(';');
+        for (var i = 0; i < ca.length; i++) {
+          var c = ca[i];
+          while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+          if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+        }
+        return null;
+      }
+
+      if (!getCookie('bottombar-hidden')) {
+        $('.js-bottombar').show();
+      }
+
+      $('.js-bottombar-close').on('click', function (e) {
+        $('.js-bottombar').hide();
+        setCookie('bottombar-hidden', 1, 7);
+
+        e.preventDefault();
+        return false;
+      });
+    });
+  });
+</script>
+
+{% endblock javascripts %}
