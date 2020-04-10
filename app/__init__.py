@@ -68,7 +68,7 @@ def create_app(extra_config_settings={}):
             local = utc.astimezone(local_timezone)
             return local.strftime('%B %d, %Y %X %Z')
 
-        return dict(user_manager=user_manager, local_time=local_time)
+        return dict(user_manager=user_manager, local_time=local_time, hasattr=hasattr)
 
 
     return app

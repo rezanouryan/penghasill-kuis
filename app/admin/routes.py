@@ -1,10 +1,10 @@
-from flask import Blueprint, render_template, redirect, url_for, request, current_app, jsonify
+from flask import Blueprint, render_template, redirect, url_for, request, current_app, jsonify, make_response
 from flask_user import roles_required
-from ..models import User, Quiz, db, Role
+from ..models import User, Quiz, db, Role, Question
 from datetime import datetime, timedelta
 from .admin_forms import AddQuizForm
 from ..quiz_generator.article import Article
-
+import pytz
 
 # Set up blueprint
 admin_bp = Blueprint('admin_bp', __name__,
@@ -63,15 +63,15 @@ def list_quiz_serverside():
     from ..serverside.serverside_table import ServerSideTable
     data = []
     for x in Quiz.query.all():
+        
         entry = {
             "name": x.name,
             "topic": x.topic,
-            "enroll_code": "<strong>" + x.enroll_code + "</strong>",
+            "enroll_code": "<strong>" + (x.enroll_code or "") + "</strong>",
             "date_created": x.date_created,
             "deadline": x.deadline,
             "status": "<span class='status-icon bg-secondary'></span> Expired" if x.is_expired else "<span class='status-icon bg-success'></span> Upcoming",
-            "action": '<a href="javascript:void(0)" data-enrollcode="' + x.enroll_code + '" class="btn btn-danger btn-sm">Delete</a> &nbsp;' + \
-                      '<a href="javascript:void(0)" data-enrollcode="' + x.enroll_code + '" class="btn btn-primary btn-sm">Show report</a>'  
+            "action": '<a href="' + url_for('admin_bp.view_quiz', enroll_code=(str(x.enroll_code).lower() or "")) + '" class="btn btn-primary btn-sm">Show report and questions</a> &nbsp;'
         }
         data.append(entry)
 
@@ -86,12 +86,19 @@ def add_quiz():
     add_quiz_form = AddQuizForm(request.form)
     if request.method == 'POST':
         if add_quiz_form.validate_on_submit():
+            local = pytz.timezone('Asia/Jakarta')
             name = add_quiz_form.name.data
             topic = add_quiz_form.topic.data
-            deadline = add_quiz_form.deadline.data
+            deadline = (add_quiz_form.deadline.data + timedelta(days=1)).strftime("%Y-%m-%d")
+            deadline = local.localize(datetime.strptime(deadline, "%Y-%m-%d"), is_dst=None)
+            deadline = deadline.astimezone(pytz.utc) - timedelta(seconds=1)            
             max_attempt = add_quiz_form.max_attempt.data
 
-            quiz = Quiz(name=name, topic=topic, deadline=deadline, max_attempt=max_attempt)
+
+            quiz = Quiz(name=name, topic=topic, deadline=deadline,
+                        max_attempt=max_attempt)
+
+            quiz.set_enroll_code()
 
             article = Article(topic)
             if hasattr(article, 'quiz'):
@@ -99,20 +106,50 @@ def add_quiz():
                 ten_random = article.quiz.get_ten_random()
                 random_propers = article.quiz.get_random_propers()
                 random_loc = article.quiz.get_random_locations()
-                
+                question_set = [get_question_set(
+                    q.text, q.gaps) for q in ten_random]
+                question_set = list(
+                    filter(lambda x: x is not None, question_set))
 
-                question_set = [get_question_set(q.text, q.gaps) for q in ten_random]
-                print(question_set)
-                print(random_propers, random_loc)
+                if len(question_set) == 0:
+                    return make_response(" No question generated. Try again with different keyword.", 402)
+
+                for q in question_set:
+                    quest = Question(**q)
+                    quiz.questions.append(quest)
+
+                failed = False
+                try:
+                    db.session.add(quiz)
+                    db.session.commit()
+                except Exception as e:
+                    db.session.rollback()
+                    db.session.flush()  # for resetting non-commited .add()
+                    failed = True
+
+                if failed:
+                    return make_response(" There are something error when putting quiz data into database. Please try again or contact admin for further information.", 402)
+                else:
+                    return make_response(f"Quiz {name} with topic {topic} and deadline {deadline.strftime('%B %d, %Y %X %Z')} are succesfully generated. {len(question_set)} question(s) are generated for this quiz.", 201)
             else:
-                print("No_question")
+                return make_response(f" Cannot find article about {topic} in DBpedia for question generator. Please make sure topic {topic} is exists. ", 402)
 
         pass
 
-
-
-
     pass
+
+
+
+@admin_bp.route('/admin/quiz/<enroll_code>', methods=['GET'])
+@roles_required('admin')
+def view_quiz(enroll_code):
+    data = {}
+    data['quiz'] = Quiz.query.filter(Quiz.enroll_code==enroll_code.upper()).first()
+    data['questions'] = data['quiz'].questions
+
+
+    return render_template('quiz_admin.html', **data)
+
 
 
 @admin_bp.route('/admin/user-management', methods=['GET'])

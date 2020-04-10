@@ -1,0 +1,152 @@
+{% extends "tabler/base-site.html" %}
+
+{% block title %} Quiz Management {% endblock %}
+
+{% block content %}
+
+<div class="my-3 my-md-5">
+    <div class="container">
+        <div class="row row-cards">
+            <div class="col-sm-6 col-lg-6">
+                <div class="card p-3">
+                    <div class="d-flex align-items-center">
+                        <span class="stamp stamp-md bg-blue mr-3">
+                            <i class="fe fe-check-circle"></i>
+                        </span>
+                        <div>
+                            <h4 class="m-0">{{ quiz.name }}</h4>
+                            <small class="text-muted">Quiz Name</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-6">
+                <div class="card p-3">
+                    <div class="d-flex align-items-center">
+                        <span class="stamp stamp-md bg-green mr-3">
+                            <i class="fe fe-message-square"></i>
+                        </span>
+                        <div>
+                            <h4 class="m-0">{{ quiz.topic }}</h4>
+                            <small class="text-muted">Topic</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-6">
+                <div class="card p-3">
+                    <div class="d-flex align-items-center">
+                        <span class="stamp stamp-md bg-red mr-3">
+                            <i class="fe fe-calendar"></i>
+                        </span>
+                        <div>
+                            <h4 class="m-0"> {{ local_time(quiz.deadline) }} </h4>
+                            <small class="text-muted">Deadline</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-6">
+                <div class="card p-3">
+                    <div class="d-flex align-items-center">
+                        <span class="stamp stamp-md bg-yellow mr-3">
+                            <i class="fe fe-maximize"></i>
+                        </span>
+                        <div>
+                            <h4 class="m-0"> {{ quiz.enroll_code }} </h4>
+                            <small class="text-muted">Enroll Code</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title">Question List for Topic: {{ quiz.topic }}</h4>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover table-outline table-vcenter card-table">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">No.</th>
+                                    <th>Question</th>
+                                    <th class="text-center">Answer</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for i in range(questions | length) %}
+                                <tr>
+                                    <td>
+                                        <div class="text-center text-muted">{{ i+1 }}</div>
+                                    </td>
+                                    <td>
+                                        <p>{{ questions[i].question }}</p>
+                                        <div class="small text-muted">
+                                            Options: {{ questions[i].opt1 }}, {{ questions[i].opt2 }}, {{ questions[i].opt3 }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="text-center"><strong>{{ questions[i].answer}}</strong></div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+    </div>
+</div>
+
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+<script>
+    require(['jquery'], function () {
+        $(document).ready(function () {
+
+            function setCookie(name, value, days) {
+                var expires = "";
+                if (days) {
+                    var date = new Date();
+                    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                    expires = "; expires=" + date.toUTCString();
+                }
+                document.cookie = name + "=" + (value || "") + expires + "; path=/";
+            }
+
+            function getCookie(name) {
+                var nameEQ = name + "=";
+                var ca = document.cookie.split(';');
+                for (var i = 0; i < ca.length; i++) {
+                    var c = ca[i];
+                    while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+                    if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+                }
+                return null;
+            }
+
+            if (!getCookie('bottombar-hidden')) {
+                $('.js-bottombar').show();
+            }
+
+            $('.js-bottombar-close').on('click', function (e) {
+                $('.js-bottombar').hide();
+                setCookie('bottombar-hidden', 1, 7);
+
+                e.preventDefault();
+                return false;
+            });
+        });
+    });
+</script>
+
+{% endblock javascripts %}

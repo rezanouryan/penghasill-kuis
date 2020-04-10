@@ -15,7 +15,7 @@
                                 {{ current_user.first_name }} {{ current_user.last_name }}
                             </span>
                             <small class="text-muted d-block mt-1">
-                                {{ current_user.roles[0].label }}
+                                {{ "Non Admin, Student" if current_user.roles|length == 0 else current_user.roles[0].label }}
                             </small>
                           </span>
                         </a>

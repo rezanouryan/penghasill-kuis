@@ -6,7 +6,8 @@ from sqlalchemy import func, desc
 from .serverside import table_schemas
 from .serverside.serverside_table import ServerSideTable
 from .quiz_generator.article import Article
-
+from base64 import b32encode
+from random import randint
 
 # Relationship table:
 user_roles = db.Table('user_roles',
@@ -212,3 +213,8 @@ class Quiz(db.Model):
     @staticmethod
     def get_completed_quizzes():
         return Quiz.query.filter(datetime.now() > Quiz.deadline).order_by(Quiz.deadline).all()
+
+    def set_enroll_code(self):
+        encoded =  b32encode(bytes(str(self.id).encode('utf-8'))).decode('utf-8')
+        encoded = "".join([ str(randint(0, 9)) if c == '=' else c for c in encoded ])
+        self.enroll_code  =  "Q" + self.name[0].upper() + self.topic[0].upper() + encoded

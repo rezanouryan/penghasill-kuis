@@ -256,7 +256,7 @@ def get_question_set(text, gaps):
     max_g, min_g = len(gaps) - 1, 0
     gap_index = get_random_int(min_g, max_g)
     correct = gaps[gap_index]
-    correct_answer = correct[1]
+    correct_answer = correct[2]
     label = correct[0]
 
     redacted_text, redacted_ans = convert_to_redacted(text, correct[1], label)
@@ -274,8 +274,10 @@ def get_question_set(text, gaps):
 
             return {
                 "question": redacted_text,
-                "opt": wrong_answers,
-                "answer": correct_answer
+                "opt1": str(wrong_answers[0]),
+                "opt2": str(wrong_answers[1]),
+                "opt3": str(wrong_answers[2]),
+                "answer": str(correct_answer)
             }
         except:
             return None
