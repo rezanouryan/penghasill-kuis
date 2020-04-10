@@ -3,6 +3,7 @@ from flask_user import roles_required
 from ..models import User, Quiz, db, Role
 from datetime import datetime, timedelta
 from .admin_forms import AddQuizForm
+from ..quiz_generator.article import Article
 
 
 # Set up blueprint
@@ -77,6 +78,41 @@ def list_quiz_serverside():
     columns = table_schemas.SERVERSIDE_QUIZZES_COLUMNS
     data = ServerSideTable(request, data, columns).output_result()
     return jsonify(data)
+
+
+@admin_bp.route('/admin/add-quiz', methods=['POST'])
+@roles_required('admin')
+def add_quiz():
+    add_quiz_form = AddQuizForm(request.form)
+    if request.method == 'POST':
+        if add_quiz_form.validate_on_submit():
+            name = add_quiz_form.name.data
+            topic = add_quiz_form.topic.data
+            deadline = add_quiz_form.deadline.data
+            max_attempt = add_quiz_form.max_attempt.data
+
+            quiz = Quiz(name=name, topic=topic, deadline=deadline, max_attempt=max_attempt)
+
+            article = Article(topic)
+            if hasattr(article, 'quiz'):
+                from ..quiz_generator.article import get_question_set
+                ten_random = article.quiz.get_ten_random()
+                random_propers = article.quiz.get_random_propers()
+                random_loc = article.quiz.get_random_locations()
+                
+
+                question_set = [get_question_set(q.text, q.gaps) for q in ten_random]
+                print(question_set)
+                print(random_propers, random_loc)
+            else:
+                print("No_question")
+
+        pass
+
+
+
+
+    pass
 
 
 @admin_bp.route('/admin/user-management', methods=['GET'])

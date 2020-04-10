@@ -7,6 +7,7 @@ from flask_user import UserManager
 from flask_wtf.csrf import CSRFProtect
 from flask_login import LoginManager
 import pytz
+from .quiz_generator import nltk_downloader
 
 csrf_protect = CSRFProtect()
 db = SQLAlchemy()

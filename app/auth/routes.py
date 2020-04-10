@@ -65,7 +65,6 @@ def signup():
             username = signup_form.username.data
             password = signup_form.password.data
             existing_user = User.query.filter_by(username=username).first()
-            print(first_name)
             if existing_user is None:
                 user = User(first_name=first_name, login_name=login_name,
                             username=username)

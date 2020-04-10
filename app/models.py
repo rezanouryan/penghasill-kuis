@@ -5,6 +5,7 @@ from flask import current_app
 from sqlalchemy import func, desc
 from .serverside import table_schemas
 from .serverside.serverside_table import ServerSideTable
+from .quiz_generator.article import Article
 
 
 # Relationship table:
@@ -26,7 +27,6 @@ class StudentEnroll(db.Model):
     high_score = db.Column(db.Integer, default=0)
 
     attempt = db.Column(db.Integer, default=0)
-    max_attempt = db.Column(db.Integer, default=3)
     date_enrolled = db.Column(db.DateTime, default=datetime.utcnow)
 
     user = db.relationship('User', backref='student_enroll')
@@ -58,7 +58,7 @@ class StudentEnroll(db.Model):
         True: if user doesn't exceed max attempt
         False: user exceeded max attempt
         """
-        if self.attempts + 1 > self.max_attempt:
+        if self.attempts + 1 > self.quiz.max_attempt:
             return False
         self.score_uptilnow = 0
         self.question_answered = []
@@ -189,6 +189,7 @@ class Quiz(db.Model):
     name = db.Column(db.String(200))
     topic = db.Column(db.String(200))
     enroll_code = db.Column(db.String(), unique=True)
+    max_attempt = db.Column(db.Integer, default=3)
 
     date_created = db.Column(db.DateTime, default=func.now())
     deadline = db.Column(db.DateTime)
@@ -203,20 +204,6 @@ class Quiz(db.Model):
     @property
     def is_expired(self):
         return True if datetime.now() > self.deadline else False
-
-    @staticmethod
-    def get_quiz_in_datatables():
-        
-        return
-
-    @staticmethod
-    def collect_data_clientside():
-        return {'data': Quiz.get_quiz_in_datatables()}
-
-    @staticmethod
-    def collect_data_serverside(self, request):
-        columns = table_schemas.SERVERSIDE_QUIZZES_COLUMNS
-        return ServerSideTable(request, Quiz.get_quiz_in_datatables(), columns).output_result()
 
     @staticmethod
     def get_upcoming_quizzes():

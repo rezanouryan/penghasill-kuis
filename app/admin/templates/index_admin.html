@@ -22,7 +22,7 @@
               <i class="fe fe-users"></i>
             </span>
             <div>
-              <h4 class="m-0"><a href="javascript:void(0)">{{ ct_registered_user  }} <small>Student(s)
+              <h4 class="m-0"><a href="{{ url_for('admin_bp.user_management') }}">{{ ct_registered_user  }} <small>Student(s)
                     Registered</small></a></h4>
               <!-- <small class="text-muted">163 registered today</small> -->
             </div>
@@ -36,7 +36,7 @@
               <i class="fe fe-message-square"></i>
             </span>
             <div>
-              <h4 class="m-0"><a href="javascript:void(0)">{{ ct_quizzes_created }} <small>Quizzes Created</small></a></h4>
+              <h4 class="m-0"><a href="{{ url_for('admin_bp.quiz_management') }}">{{ ct_quizzes_created }} <small>Quizzes Created</small></a></h4>
               <small class="text-muted">{{ ct_quizzes_completed }} completed</small>
             </div>
           </div>
