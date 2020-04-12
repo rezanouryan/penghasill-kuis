@@ -2,9 +2,11 @@ from flask import Blueprint, render_template, redirect, url_for, request, curren
 from flask_user import roles_required
 from ..models import User, Quiz, db, Role, Question
 from datetime import datetime, timedelta
-from .admin_forms import AddQuizForm
+from .admin_forms import AddQuizForm, DeleteUserForm
 from ..quiz_generator.article import Article
 import pytz
+from requests.exceptions import ConnectionError as ce
+from ..helper.date_time_utils import local_time
 
 # Set up blueprint
 admin_bp = Blueprint('admin_bp', __name__,
@@ -68,8 +70,8 @@ def list_quiz_serverside():
             "name": x.name,
             "topic": x.topic,
             "enroll_code": "<strong>" + (x.enroll_code or "") + "</strong>",
-            "date_created": x.date_created,
-            "deadline": x.deadline,
+            "date_created": local_time(x.date_created),
+            "deadline": local_time(x.deadline),
             "status": "<span class='status-icon bg-secondary'></span> Expired" if x.is_expired else "<span class='status-icon bg-success'></span> Upcoming",
             "action": '<a href="' + url_for('admin_bp.view_quiz', enroll_code=(str(x.enroll_code).lower() or "")) + '" class="btn btn-primary btn-sm">Show report and questions</a> &nbsp;'
         }
@@ -100,7 +102,11 @@ def add_quiz():
 
             quiz.set_enroll_code()
 
-            article = Article(topic)
+            article = None
+            try:
+                article = Article(topic)
+            except ce as err:
+                return make_response(err.__str__(), 408)
             if hasattr(article, 'quiz'):
                 from ..quiz_generator.article import get_question_set
                 ten_random = article.quiz.get_ten_random()
@@ -155,4 +161,44 @@ def view_quiz(enroll_code):
 @admin_bp.route('/admin/user-management', methods=['GET'])
 @roles_required('admin')
 def user_management():
+    data = {}
+    data['delete_user_form'] = DeleteUserForm()
+    return render_template('user_man_admin.html', **data)
+
+
+@admin_bp.route('/admin/list-user-serverside', methods=['GET'])
+@roles_required('admin')
+def list_user_serverside():
+    from ..serverside import table_schemas
+    from ..serverside.serverside_table import ServerSideTable
+    data = []
+    for x in User.query.filter(User.roles == None).all():
+        entry = {
+            "id": x.id,
+            "username": x.username,
+            "display_name": "<strong>" + f"{x.first_name} {x.last_name}" + "</strong>",
+            "date_created": local_time(x.date_created),
+            "action": '<button data-userondelete="'+ x.username +'" class="btn btn-danger btn-sm deleteuser">Delete</button> &nbsp;'
+        }
+        data.append(entry)
+
+    columns = table_schemas.SERVERSIDE_USERS_COLUMNS
+    data = ServerSideTable(request, data, columns).output_result()
+    return jsonify(data)
+
+
+@admin_bp.route('/admin/delete-user', methods=['POST'])
+@roles_required('admin')
+def delete_user():
+    if request.method == 'POST':
+        delete_form = DeleteUserForm(request.form)
+        if delete_form.validate_on_submit():
+            username = delete_form.username.data
+
+            User.query.filter(User.username == username).delete()
+            db.session.commit()
+            return make_response(f"User {username} is succesfully deleted", 202)
+        return make_response(f"Error deleting user {username}. The user that you want to delete might be already not exists.", 400)
+
+
     pass

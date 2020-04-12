@@ -49,3 +49,41 @@ SERVERSIDE_QUIZZES_COLUMNS = [
         "searchable": False
     }
 ]
+
+SERVERSIDE_USERS_COLUMNS = [
+    {
+        "data_name": "id",
+        "column_name": "User ID",
+        "default": "",
+        "order": 2,
+        "searchable": True
+    },
+    {
+        "data_name": "username",
+        "column_name": "Username",
+        "default": "",
+        "order": 1,
+        "searchable": True
+    },
+    {
+        "data_name": "display_name",
+        "column_name": "Display Name (First and Last Name)",
+        "default": "",
+        "order": 3,
+        "searchable": True
+    },
+    {
+        "data_name": "date_created",
+        "column_name": "Date Created",
+        "default": 0,
+        "order": 4,
+        "searchable": True
+    },
+    {
+        "data_name": "action",
+        "column_name": "Action",
+        "default": "",
+        "order": 4,
+        "searchable": False
+    }
+]

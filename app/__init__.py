@@ -14,7 +14,6 @@ db = SQLAlchemy()
 mail = Mail()
 migrate = Migrate()
 login_manager = LoginManager()
-local_timezone = pytz.timezone('Asia/Jakarta')
 
 
 
@@ -64,11 +63,8 @@ def create_app(extra_config_settings={}):
 
     @app.context_processor
     def context_processor():
-        def local_time(utc):
-            local = utc.astimezone(local_timezone)
-            return local.strftime('%B %d, %Y %X %Z')
-
-        return dict(user_manager=user_manager, local_time=local_time, hasattr=hasattr)
+        from .helper import date_time_utils as dtu
+        return dict(user_manager=user_manager, local_time=dtu.local_time, hasattr=hasattr)
 
 
     return app

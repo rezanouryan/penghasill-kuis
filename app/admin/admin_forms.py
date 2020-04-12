@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, IntegerField, validators
+from wtforms import StringField, SubmitField, IntegerField, validators, HiddenField
 from wtforms.fields.html5 import DateField
 from wtforms.validators import DataRequired, Email, EqualTo, Length, Optional
 from datetime import datetime
@@ -18,3 +18,8 @@ class AddQuizForm(FlaskForm):
                              [validators.NumberRange(min=0, max=10), DataRequired()],
                              default=3)
     submit = SubmitField("Add New Quiz!")
+
+
+class DeleteUserForm(FlaskForm):
+    username = StringField("Username", validators=[DataRequired()])
+    delete_button = SubmitField("I understand all data related to this user will be deleted.")

@@ -1,0 +1,78 @@
+<!-- Modal -->
+<div class="modal fade" id="deleteUser" tabindex="-1" role="dialog" aria-labelledby="deleteUserLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <form id="deleteUserData" class="modal-content" method="POST" action="{{ url_for('admin_bp.delete_user') }}">
+            <div class="modal-header">
+                {{ delete_user_form.csrf_token }}
+                <h5 class="modal-title" id="deleteUserLabel">Delete User</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true"></span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="warn-message" class="alert alert-danger" role="alert">
+                    By deleting user. All data and quiz report related to selected user will be deleted. This operation cannot be undone.
+                </div>
+                <div id="form-message" class="alert alert-warning" role="alert">
+                    Type the name of username to complete the deletion.
+                </div>
+                <div id="username-hidden" style="display: none;"></div>
+                {{ delete_user_form.username(class_="form-control") }}
+            </div>
+            <div class="modal-footer">
+                {{ delete_user_form.delete_button(disabled="disabled", class='btn btn-outline-danger disabled', id="deleteUserData-submit") }}
+            </div>
+        </form>
+    </div>
+</div>
+
+{% block javascripts2 %}
+<script>
+    require(['jquery'], function () {
+        $('#deleteUserData').submit(function (event) {
+            event.preventDefault();
+            var form = $('#deleteUserData');
+            var formMessages = '#form-message'
+            var url = $(form).attr('action');
+            var type = $(form).attr('method');
+            var formData = $(form).serialize();
+
+
+            $(formMessages).css("display", "block");
+            $(formMessages).removeClass('alert-danger');
+            $(formMessages).removeClass('alert-success');
+
+                    // Set the message text.
+            $(formMessages).text("Please wait...");  
+
+            $.ajax({
+                type: type,
+                url: url,
+                data: formData
+            })
+                .done(function (resp) {
+                    $(formMessages).css("display", "block");
+                    $(formMessages).removeClass('alert-danger');
+                    $(formMessages).addClass('alert-success');
+
+                    // Set the message text.
+                    $(formMessages).text(resp);
+                })
+                .fail(function (resp) {
+                    $(formMessages).css("display", "block");
+                    $(formMessages).removeClass('alert-success');
+                    $(formMessages).addClass('alert-danger');
+
+                    // Set the message text.
+                    if (resp.responseText !== '') {
+                        $(formMessages).text("Error:" + resp.responseText);
+                    } else {
+                        $(formMessages).text('Oops! An error occured and your message could not be sent.');
+                    }
+                });
+        });
+    });
+</script>
+
+{% endblock javascripts2 %}

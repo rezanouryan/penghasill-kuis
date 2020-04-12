@@ -66,14 +66,14 @@ def signup():
             password = signup_form.password.data
             existing_user = User.query.filter_by(username=username).first()
             if existing_user is None:
-                user = User(first_name=first_name, login_name=login_name,
+                user = User(first_name=first_name, last_name=last_name,
                             username=username)
                 user.set_password(password)
                 db.session.add(user)
                 db.session.commit()  # Create new user
                 login_user(user)  # Log in as newly created user
-                return redirect(url_for('main_bp.dashboard'), code=400)
-            flash('A user already exists with that email address.')
+                return redirect(url_for('main_bp.main'), code=400)
+            flash('A user already exists with that username.')
             return redirect(url_for('auth_bp.signup'))
 
 

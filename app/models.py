@@ -106,6 +106,8 @@ class User(UserMixin, db.Model):
     roles = db.relationship('Role', secondary=user_roles, lazy='subquery',
                             backref=db.backref('users', lazy=True))
 
+    date_created = db.Column(db.DateTime, default=func.now())
+
     quizzes = db.relationship(
         'Quiz', secondary='student_enroll')
 
