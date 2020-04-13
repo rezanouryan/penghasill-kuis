@@ -1,0 +1,73 @@
+<!-- Modal -->
+<div class="modal fade" id="enrollForm" tabindex="-1" role="dialog" aria-labelledby="enrollFormLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <form id="enrollFormData" class="modal-content" method="POST" action="{{url_for('student_bp.enroll_quiz')}}">
+        <div class="modal-header">
+          <h5 class="modal-title" id="enrollFormLabel">Enroll to Quiz</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true"></span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <div id="form-message" class="alert alert-primary" style="display: none;" role="alert">
+
+            </div>
+              {{ enroll_form.csrf_token }}
+              <div class="form-group">
+                {{ enroll_form.enroll_code(class_="form-control", placeholder='Input enrollment code') }}
+              </div>
+            </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          {{ enroll_form.submit(class='btn btn-primary') }}
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+      require(['jquery'], function () {
+        $('#enrollFormData').submit(function (event) {
+            event.preventDefault();
+            var form = $('#enrollFormData');
+            var formMessages = '#form-message'
+            var url = $(form).attr('action');
+            var type = $(form).attr('method');
+            var formData = $(form).serialize();
+
+
+            $(formMessages).css("display", "block");
+            $(formMessages).removeClass('alert-danger');
+            $(formMessages).removeClass('alert-success');
+
+                    // Set the message text.
+            $(formMessages).text("Please wait...");  
+
+            $.ajax({
+                type: type,
+                url: url,
+                data: formData
+            })
+                .done(function (resp) {
+                    $(formMessages).css("display", "block");
+                    $(formMessages).removeClass('alert-danger');
+                    $(formMessages).addClass('alert-success');
+
+                    // Set the message text.
+                    $(formMessages).text(resp);
+                })
+                .fail(function (resp) {
+                    $(formMessages).css("display", "block");
+                    $(formMessages).removeClass('alert-success');
+                    $(formMessages).addClass('alert-danger');
+
+                    // Set the message text.
+                    if (resp.responseText !== '') {
+                        $(formMessages).text("Error:" + resp.responseText);
+                    } else {
+                        $(formMessages).text('Oops! An error occured and your message could not be sent.');
+                    }
+                });
+        });
+    });
+  </script>

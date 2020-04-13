@@ -5,5 +5,5 @@ from wtforms.validators import DataRequired, Email, EqualTo, Length, Optional
 
 class EnrollForm(FlaskForm):
     """Add new quiz form."""
-    enroll_code = StringField('Enroll Code')
+    enroll_code = StringField('Enroll Code', validators=[DataRequired()])
     submit = SubmitField("Enroll me!")

@@ -13,10 +13,10 @@
                     <div class="col-lg order-lg-first">
                       <ul class="nav nav-tabs border-0 flex-column flex-lg-row">
                         <li class="nav-item">
-                          <a href="/" class='nav-link {% if request.url_rule.endpoint == "admin_bp.dashboard" %} active {% endif %}'><i class="fe fe-home"></i> Home</a>
+                          <a href="/" class='nav-link {% if request.url_rule.endpoint == "admin_bp.dashboard" or request.url_rule.endpoint == "student_bp.dashboard" %} active {% endif %}'><i class="fe fe-home"></i> Home</a>
                         </li>
                         <li class="nav-item dropdown">
-                          <a href="{{ url_for('student_bp.quiz_management') if current_user.roles == None else url_for('admin_bp.quiz_management') }}" class='nav-link {% if request.url_rule.endpoint == "admin_bp.quiz_management" or request.url_rule.endpoint == "student_bp.quiz_management" %} active {% endif %}'><i class="fe fe-check-square"></i> Quiz Management </a>
+                          <a href="{{ url_for('student_bp.quiz_management') if current_user.roles|length == 0 else url_for('admin_bp.quiz_management') }}" class='nav-link {% if request.url_rule.endpoint == "admin_bp.quiz_management" or request.url_rule.endpoint == "student_bp.quiz_management" %} active {% endif %}'><i class="fe fe-check-square"></i> Quiz Management </a>
                         </li>
                         {% if current_user.roles and current_user.roles[0].name == 'admin' %}
                         <li class="nav-item dropdown">

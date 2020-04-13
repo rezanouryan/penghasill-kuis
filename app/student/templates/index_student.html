@@ -1,229 +1,210 @@
 {% extends "tabler/base-site.html" %}
 
-{% block title %} Dashboard {% endblock %} 
+{% block title %} Dashboard {% endblock %}
 
 {% block content %}
 
-  <div class="my-3 my-md-5">
+<div class="my-3 my-md-5">
 
-      <div class="container">
+  <div class="container">
 
-        <div class="page-header">
-          <h1 class="page-title">
-            Student Dashboard
-          </h1>
-        </div>
+    <div class="page-header">
+      <h1 class="page-title">
+        Student Dashboard
+      </h1>
+    </div>
 
-        <div class="row row-cards">
-          <div class="col-sm-6 col-lg-6">
-            <div class="card p-3">
-              <div class="d-flex align-items-center">
-                <span class="stamp stamp-md bg-yellow mr-3">
-                  <i class="fe fe-message-square"></i>
-                </span>
-                <div>
-                  <h4 class="m-0"><a href="javascript:void(0)">{{ quizzes_enrolled  or 0 }} <small>Quizzes Enrolled</small></a></h4>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-sm-6 col-lg-6">
-            <div class="card p-3">
-              <div class="d-flex align-items-center">
-                <span class="stamp stamp-md bg-green mr-3">
-                  <i class="fe fe-check-square"></i>
-                </span>
-                <div>
-                  <h4 class="m-0"><a href="javascript:void(0)">{{ quizzes_completed  or 0 }} <small>Quizzes Completed</small></a></h4>
-                </div>
-              </div>
+    <div class="row row-cards">
+      <div class="col-sm-6 col-lg-6">
+        <div class="card p-3">
+          <div class="d-flex align-items-center">
+            <span class="stamp stamp-md bg-yellow mr-3">
+              <i class="fe fe-message-square"></i>
+            </span>
+            <div>
+              <h4 class="m-0"><a href="javascript:void(0)">{{ quizzes_enrolled  or 0 }} <small>Quizzes
+                    Enrolled</small></a></h4>
             </div>
           </div>
         </div>
-
-
-        <!-- Upcoming Quizzes Panel -->
-        <div class="row row-cards row-deck">
-          <div class="col-12">
-            
-            <div class="card">
-              <div class="card-header">
-                <h4 class="card-title">Upcoming Quizzes</h4>
-                <div class="card-options">
-                  <a href='#' data-toggle="modal" data-target="#enrollForm" class="btn btn-primary btn-sm"><i class="fe fe-plus"></i> Enroll to Quiz</a>
-                </div>
-              </div>
-              <div class="table-responsive">
-                <table class="table table-hover table-outline table-vcenter text-nowrap card-table">
-                  <thead>
-                    <tr>
-                      <th>Topic</th>
-                      <th>Enrolled Date</th>
-                      <th>Deadline</th>
-                      <th>Summary</th>
-                      <th class="text-center">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {% for quiz in upcoming_quizzes %}
-                      <tr>
-                        <td>
-                          <div>{{quiz.topic}}</div>
-                        </td>
-                        <td>
-                          <div class="clearfix">
-                            <div class="float-left">
-                              <span>{{quiz.date_created}} </span>
-                            </div>
-                            
-                          </div>
-                        </td>
-                        <td class="text-center">
-                          <div class="clearfix">
-                            <div class="float-left">
-                              <strong> {{quiz.deadline}} </strong>
-                            </div>
-                          </div>
-                        </td>
-                        <td>
-                          <div class="small text-muted">Student enrolled</div>
-                        <div>{{quiz.users_enrolled}} student(s)</div>
-                      </td>
-                      <td class="text-center">
-                          <strong>{{ quiz.enroll_code }}</strong>
-                      </td>
-                    </tr>
-                    {% endfor %}
-                    <tr></tr>
-                    
-                  </tbody>
-                </table>
-              </div>
+      </div>
+      <div class="col-sm-6 col-lg-6">
+        <div class="card p-3">
+          <div class="d-flex align-items-center">
+            <span class="stamp stamp-md bg-green mr-3">
+              <i class="fe fe-check-square"></i>
+            </span>
+            <div>
+              <h4 class="m-0"><a href="javascript:void(0)">{{ quizzes_completed  or 0 }} <small>Quizzes
+                    Completed</small></a></h4>
             </div>
           </div>
-          
-        
-          <div class="col-12">
-            
-            <div class="card">
-              <div class="card-header">
-                <h4 class="card-title">Result</h4>
-              </div>
-              <div class="table-responsive">
-                <table class="table table-hover table-outline table-vcenter text-nowrap card-table">
-                  <thead>
-                    <tr>
-                      <th>Topic</th>
-                      <th>Enrolled Date</th>
-                      <th>Deadline</th>
-                      <th>Summary</th>
-                      <th class="text-center">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {% for quiz in upcoming_quizzes %}
-                      <tr>
-                        <td>
-                          <div>{{quiz.topic}}</div>
-                        </td>
-                        <td>
-                          <div class="clearfix">
-                            <div class="float-left">
-                              <span>{{quiz.date_created}} </span>
-                            </div>
-                            
-                          </div>
-                        </td>
-                        <td class="text-center">
-                          <div class="clearfix">
-                            <div class="float-left">
-                              <strong> {{quiz.deadline}} </strong>
-                            </div>
-                          </div>
-                        </td>
-                        <td>
-                          <div class="small text-muted">Student enrolled</div>
-                        <div>{{quiz.users_enrolled}} student(s)</div>
-                      </td>
-                      <td class="text-center">
-                          <strong>{{ quiz.enroll_code }}</strong>
-                      </td>
-                    </tr>
-                    {% endfor %}
-                    <tr></tr>
-                    
-                  </tbody>
-                </table>
-              </div>
-            </div>
         </div>
+      </div>
+    </div>
+
+
+    <!-- Upcoming Quizzes Panel -->
+    <div class="row row-cards row-deck">
+      <div class="col-12">
+
+        <div class="card">
+          <div class="card-header">
+            <h4 class="card-title">Upcoming Quizzes</h4>
+            <div class="card-options">
+              <a href='#' data-toggle="modal" data-target="#enrollForm" class="btn btn-primary btn-sm"><i
+                  class="fe fe-plus"></i> Enroll to Quiz</a>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover table-outline table-vcenter text-nowrap card-table">
+              <thead>
+                <tr>
+                  <th>Quiz name</th>
+                  <th>Topic</th>
+                  <th>Enrolled Date</th>
+                  <th>Deadline</th>
+                  <th>Summary</th>
+                  <th class="text-center">Current High score</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for quiz in upcoming_quizzes %}
+                <tr>
+
+                  <td>
+                    <div>{{quiz.name}}</div>
+                  </td>
+                  <td>
+                    <div>{{quiz.topic}}</div>
+                  </td>
+                  <td>
+                    <div class="clearfix">
+                      <div class="float-left">
+                        <span>{{ local_time(quiz.date_enrolled)}} </span>
+                      </div>
+
+                    </div>
+                  </td>
+                  <td class="text-center">
+                    <div class="clearfix">
+                      <div class="float-left">
+                        <strong> {{local_time(quiz.deadline)}} </strong>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="small text-muted">Remaining attempt(s)</div>
+                    <div>{{quiz.remaining_attempts}} attempt(s)</div>
+                  </td>
+                  <td>
+                    <div class="text-center"><strong>{{quiz.high_score}}</strong></div>
+                  </td>
+                </tr>
+                {% endfor %}
+                <tr></tr>
+
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="col-12">
+
+        <div class="card">
+          <div class="card-header">
+            <h4 class="card-title">Result</h4>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover table-outline table-vcenter text-nowrap card-table">
+              <thead>
+                <tr>
+                  <th>Topic</th>
+                  <th>Enrolled Date</th>
+                  <th>Deadline</th>
+                  <th class="text-center">Final Score</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for quiz in completed_quizzes %}
+                <tr>
+                  <td>
+                    <div>{{quiz.topic}}</div>
+                  </td>
+                  <td>
+                    <div class="clearfix">
+                      <div class="float-left">
+                        <span>{{quiz.date_enrolled}} </span>
+                      </div>
+
+                    </div>
+                  </td>
+                  <td class="text-center">
+                    <div class="clearfix">
+                      <div class="float-left">
+                        <strong> {{quiz.deadline}} </strong>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div><strong>{{quiz.high_score}}</strong></div>
+                  </td>
+                </tr>
+                {% endfor %}
+                <tr></tr>
+
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
 
     </div>
 
-        <!-- Modal -->
-  <div class="modal fade" id="enrollForm" tabindex="-1" role="dialog" aria-labelledby="enrollFormLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <form class="modal-content" method="POST">
-        <div class="modal-header">
-          <h5 class="modal-title" id="enrollFormLabel">Enroll to Quiz</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true"></span>
-          </button>
-        </div>
-        <div class="modal-body">
-              {{ enroll_form.csrf_token }}
-              <div class="form-group">
-                {{ enroll_form.enroll_code(class_="form-control", placeholder='Input enrollment code') }}
-              </div>
-            </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          {{ enroll_form.submit(class='btn btn-primary') }}
-        </div>
-      </form>
-    </div>
-  </div>
+    {% include 'components/enrollquizform_modal.html' %}
 
   </div>
 
-{% endblock content %}
+  {% endblock content %}
 
-<!-- Specific Page JS goes HERE  -->
-{% block javascripts %}
+  <!-- Specific Page JS goes HERE  -->
+  {% block javascripts %}
 
-<script>
+  <script>
     require(['jquery'], function () {
       $(document).ready(function () {
-    
-        function setCookie(name,value,days) {
+
+        function setCookie(name, value, days) {
           var expires = "";
           if (days) {
             var date = new Date();
-            date.setTime(date.getTime() + (days*24*60*60*1000));
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
             expires = "; expires=" + date.toUTCString();
           }
-          document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+          document.cookie = name + "=" + (value || "") + expires + "; path=/";
         }
-    
+
         function getCookie(name) {
           var nameEQ = name + "=";
           var ca = document.cookie.split(';');
-          for(var i=0;i < ca.length;i++) {
+          for (var i = 0; i < ca.length; i++) {
             var c = ca[i];
-            while (c.charAt(0)==' ') c = c.substring(1,c.length);
-            if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+            while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+            if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
           }
           return null;
         }
-    
+
         if (!getCookie('bottombar-hidden')) {
           $('.js-bottombar').show();
         }
-    
+
         $('.js-bottombar-close').on('click', function (e) {
           $('.js-bottombar').hide();
           setCookie('bottombar-hidden', 1, 7);
-    
+
           e.preventDefault();
           return false;
         });
@@ -231,4 +212,4 @@
     });
   </script>
 
-{% endblock javascripts %}
+  {% endblock javascripts %}

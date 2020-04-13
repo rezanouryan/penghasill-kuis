@@ -34,6 +34,10 @@ class StudentEnroll(db.Model):
     quiz = db.relationship('Quiz', backref='student_enroll')
 
     @property
+    def remaining_attempts(self):
+        return self.quiz.max_attempt - self.attempt
+
+    @property
     def is_completed(self):
         return True if self.attempts > 0 else False
 
