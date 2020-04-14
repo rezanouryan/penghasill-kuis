@@ -21,4 +21,6 @@ def main():
 
 @main_bp.route('/leaderboard', methods=['GET'])
 def leaderboard():
-    pass
+    data = dict()
+    data['leaderboard'] = User.get_leaderboard()
+    return render_template('leaderboard.html', **data)
