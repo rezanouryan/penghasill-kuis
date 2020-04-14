@@ -1,0 +1,179 @@
+{% extends "tabler/base-site.html" %}
+
+{% block title %} Question {% endblock %}
+
+{% block content %}
+<div class="my-3 my-md-5">
+
+    <div class="container">
+        <div class="row row-cards">
+            <div class="col-12">
+                <form class="card" method="POST" id="questionForm"
+                    action="{{ url_for('student_bp.answer_question', enroll_code=enroll_code) }}">
+                    <div class="card-header">
+                        <h3 class="card-title">Question topic {{topic}}</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="form-message" class="alert alert-primary" style="display: none;" role="alert"></div>
+                        {{question_form.csrf_token}}
+                        {{question_form.question_id}}
+                        <div id="question_label" class="alert">Question Label</div>
+                        {{question_form.answer_option(style="list-style-type:none;")}}
+
+                    </div>
+                    <div class="modal-footer">
+                        <a href="{{ url_for('student_bp.quiz_management') }}" type="button" class="btn btn-secondary">Back to Quiz Management</a>
+                        {{ question_form.submit(class='btn btn-primary') }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+<script>
+    require(['jquery'], function () {
+        function sleep(time) {
+            return new Promise((resolve) => setTimeout(resolve, time));
+        }
+
+        function get_question() {
+            var formMessages = '#form-message'
+            var answer_option = 'answer_option'
+            var question_id = '#question_id'
+            var question_label = '#question_label'
+
+            var url = "{{ url_for('student_bp.request_question', enroll_code=enroll_code) }}";
+            $.ajax({
+                type: 'GET',
+                url: url
+            })
+            .done(function (resp) {
+                    
+                    $('input[name="'+ answer_option +'"]').prop('checked', false);
+                    $(formMessages).css("display", "none");
+                    $(question_id).val(resp.question_id);
+                    for (let i = 0; i < resp.question_opt.length; i++) {
+                        const element = resp.question_opt[i];
+                        $("label[for=" + answer_option + '-' + i + ']').html("<strong>" + element + "</strong>");
+                        $("label[for=" + answer_option + '-' + i + ']').css("padding-left", '1em')
+                        $("input#" + answer_option + '-' + i).val(element);
+                    }
+                    $(question_label).html(resp.question_label);
+                    if (resp.question_complete){
+                        $(':input[type="submit"]').removeClass('btn-primary');
+                        $(':input[type="submit"]').addClass('btn-success');
+                        $(':input[type="submit"]').val("Complete Quiz");
+                    }
+                })
+                .fail(function (resp) {
+                    $(formMessages).css("display", "block");
+                    $(formMessages).removeClass('alert-success');
+                    $(formMessages).addClass('alert-danger');
+
+                    // Set the message text.
+                    if (resp.responseText !== '') {
+                        $(formMessages).text("Error:" + resp.responseText);
+                    } else {
+                        $(formMessages).text('Oops! An error occured and your message could not be sent.');
+                    }
+                });
+        }
+
+        $('#questionForm').submit(function (event) {
+            event.preventDefault();
+            var form = $('#questionForm');
+            var formMessages = '#form-message'
+            var url = $(form).attr('action');
+            var type = $(form).attr('method');
+            var formData = $(form).serialize();
+
+            $(formMessages).css("display", "block");
+            $(formMessages).removeClass('alert-danger');
+            $(formMessages).removeClass('alert-success');
+
+            // Set the message text.
+            $(formMessages).text("Please wait...");
+
+            $.ajax({
+                type: type,
+                url: url,
+                data: formData
+            })
+                .done(function (resp) {
+                    if (resp.redirect_to_home){
+                        $(location).attr('href','/');
+                    }
+                    $(formMessages).css("display", "block");
+                    $(formMessages).removeClass('alert-danger');
+                    $(formMessages).addClass('alert-success');
+
+
+                    $(formMessages).text(resp);
+                    sleep(100).then(() => {
+                        get_question();
+                    });
+
+                })
+                .fail(function (resp) {
+                    $(formMessages).css("display", "block");
+                    $(formMessages).removeClass('alert-success');
+                    $(formMessages).addClass('alert-danger');
+
+                    // Set the message text.
+                    if (resp.responseText !== '') {
+                        $(formMessages).text("Error:" + resp.responseText);
+                    } else {
+                        $(formMessages).text('Oops! An error occured and your message could not be sent.');
+                    }
+                });
+
+        });
+
+
+        $(document).ready(function () {
+
+            function setCookie(name, value, days) {
+                var expires = "";
+                if (days) {
+                    var date = new Date();
+                    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                    expires = "; expires=" + date.toUTCString();
+                }
+                document.cookie = name + "=" + (value || "") + expires + "; path=/";
+            }
+
+            function getCookie(name) {
+                var nameEQ = name + "=";
+                var ca = document.cookie.split(';');
+                for (var i = 0; i < ca.length; i++) {
+                    var c = ca[i];
+                    while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+                    if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+                }
+                return null;
+            }
+
+            if (!getCookie('bottombar-hidden')) {
+                $('.js-bottombar').show();
+            }
+
+            $('.js-bottombar-close').on('click', function (e) {
+                $('.js-bottombar').hide();
+                setCookie('bottombar-hidden', 1, 7);
+
+                e.preventDefault();
+                return false;
+            });
+            get_question()
+        });
+    });
+</script>
+
+{% endblock javascripts %}

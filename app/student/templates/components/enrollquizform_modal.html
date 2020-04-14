@@ -9,9 +9,7 @@
           </button>
         </div>
         <div class="modal-body">
-            <div id="form-message" class="alert alert-primary" style="display: none;" role="alert">
-
-            </div>
+            <div id="form-message" class="alert alert-primary" style="display: none;" role="alert"></div>
               {{ enroll_form.csrf_token }}
               <div class="form-group">
                 {{ enroll_form.enroll_code(class_="form-control", placeholder='Input enrollment code') }}

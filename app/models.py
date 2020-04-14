@@ -8,13 +8,16 @@ from .serverside.serverside_table import ServerSideTable
 from .quiz_generator.article import Article
 from base64 import b32encode
 from random import randint
+from sqlalchemy.ext.hybrid import hybrid_property
+import json
 
 # Relationship table:
 user_roles = db.Table('user_roles',
                       db.Column('user_id', db.Integer(), db.ForeignKey(
                           'users.id', ondelete='CASCADE')),
                       db.Column('role_id', db.Integer(), db.ForeignKey(
-                          'roles.id', ondelete='CASCADE'))
+                          'roles.id', ondelete='CASCADE')),
+                      extend_existing=True
                       )
 
 
@@ -30,8 +33,19 @@ class StudentEnroll(db.Model):
     attempt = db.Column(db.Integer, default=0)
     date_enrolled = db.Column(db.DateTime, default=datetime.utcnow)
 
+    _question_unanswered = db.Column('question_unanswered', db.String(
+        600), nullable=False, default='[]', server_default='[]')
+
     user = db.relationship('User', backref='student_enroll')
     quiz = db.relationship('Quiz', backref='student_enroll')
+
+    @hybrid_property
+    def question_unanswered(self):
+        return json.loads(self._question_unanswered)
+
+    @question_unanswered.setter
+    def question_unanswered(self, question_unanswered):
+        self._question_unanswered = json.dumps(question_unanswered)
 
     @property
     def remaining_attempts(self):
@@ -39,11 +53,11 @@ class StudentEnroll(db.Model):
 
     @property
     def is_completed(self):
-        return True if self.attempts > 0 else False
+        return True if self.attempt > 0 else False
 
     @property
-    def active_attempts(self):
-        return True if self.question_answered else False
+    def active_attempt(self):
+        return True if len(self.question_unanswered) > 0 else False
 
     @property
     def score_in_percentage(self):
@@ -63,11 +77,11 @@ class StudentEnroll(db.Model):
         True: if user doesn't exceed max attempt
         False: user exceeded max attempt
         """
-        if self.attempts + 1 > self.quiz.max_attempt:
+        if self.attempt + 1 > self.quiz.max_attempt:
             return False
+        self.attempt += 1
         self.score_uptilnow = 0
-        self.question_answered = []
-        self.question_length = len(self.quiz.questions)
+        self.question_unanswered = [q.id for q in self.quiz.questions]
         return True
 
     def set_score(self, question_obj, user_answer, score=1):
@@ -79,13 +93,10 @@ class StudentEnroll(db.Model):
         False: if user already answered question in attempt
         True: if question still not yet answered by user in attempt
         """
-        if question_obj.id in question_answered:
-            return False
-
-        self.question_answered.append[question_obj.id]
         if user_answer == question_obj.answer:
             self.score_uptilnow += score
-        return True
+        self.high_score = self.high_score if self.score_uptilnow < self.high_score else self.score_uptilnow
+        
 
     def finish_attempt(self):
         self.high_score = self.high_score if self.score_uptilnow < self.high_score else self.score_uptilnow
@@ -185,7 +196,7 @@ class Question(db.Model):
     opt2 = db.Column(db.String(200))
     opt3 = db.Column(db.String(200))
 
-    answer = db.Column(db.Integer)
+    answer = db.Column(db.String(200))
 
 
 # Quiz: List of quiz with specific topic
@@ -207,7 +218,6 @@ class Quiz(db.Model):
     users = db.relationship(
         'User', secondary='student_enroll')
 
-    
     @property
     def is_expired(self):
         return True if datetime.now() > self.deadline else False
@@ -221,6 +231,9 @@ class Quiz(db.Model):
         return Quiz.query.filter(datetime.now() > Quiz.deadline).order_by(Quiz.deadline).all()
 
     def set_enroll_code(self):
-        encoded =  b32encode(bytes(str(self.id).encode('utf-8'))).decode('utf-8')
-        encoded = "".join([ str(randint(0, 9)) if c == '=' else c for c in encoded ])
-        self.enroll_code  =  "Q" + self.name[0].upper() + self.topic[0].upper() + encoded
+        encoded = b32encode(
+            bytes(str(self.id).encode('utf-8'))).decode('utf-8')
+        encoded = "".join([str(randint(0, 9)) if c ==
+                           '=' else c for c in encoded])
+        self.enroll_code = "Q" + \
+            self.name[0].upper() + self.topic[0].upper() + encoded

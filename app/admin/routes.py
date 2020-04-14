@@ -65,7 +65,7 @@ def list_quiz_serverside():
     from ..serverside.serverside_table import ServerSideTable
     data = []
     for x in Quiz.query.all():
-        
+
         entry = {
             "name": x.name,
             "topic": x.topic,
@@ -91,11 +91,12 @@ def add_quiz():
             local = pytz.timezone('Asia/Jakarta')
             name = add_quiz_form.name.data
             topic = add_quiz_form.topic.data
-            deadline = (add_quiz_form.deadline.data + timedelta(days=1)).strftime("%Y-%m-%d")
-            deadline = local.localize(datetime.strptime(deadline, "%Y-%m-%d"), is_dst=None)
-            deadline = deadline.astimezone(pytz.utc) - timedelta(seconds=1)            
+            deadline = (add_quiz_form.deadline.data +
+                        timedelta(days=1)).strftime("%Y-%m-%d")
+            deadline = local.localize(datetime.strptime(
+                deadline, "%Y-%m-%d"), is_dst=None)
+            deadline = deadline.astimezone(pytz.utc) - timedelta(seconds=1)
             max_attempt = add_quiz_form.max_attempt.data
-
 
             quiz = Quiz(name=name, topic=topic, deadline=deadline,
                         max_attempt=max_attempt)
@@ -130,7 +131,7 @@ def add_quiz():
                     db.session.commit()
                 except Exception as e:
                     db.session.rollback()
-                    db.session.flush()  # for resetting non-commited .add()
+                    db.session.flush()
                     failed = True
 
                 if failed:
@@ -145,17 +146,15 @@ def add_quiz():
     pass
 
 
-
 @admin_bp.route('/admin/quiz/<enroll_code>', methods=['GET'])
 @roles_required('admin')
 def view_quiz(enroll_code):
     data = {}
-    data['quiz'] = Quiz.query.filter(Quiz.enroll_code==enroll_code.upper()).first()
+    data['quiz'] = Quiz.query.filter(
+        Quiz.enroll_code == enroll_code.upper()).first()
     data['questions'] = data['quiz'].questions
 
-
     return render_template('quiz_admin.html', **data)
-
 
 
 @admin_bp.route('/admin/user-management', methods=['GET'])
@@ -178,7 +177,7 @@ def list_user_serverside():
             "username": x.username,
             "display_name": "<strong>" + f"{x.first_name} {x.last_name}" + "</strong>",
             "date_created": local_time(x.date_created),
-            "action": '<button data-userondelete="'+ x.username +'" class="btn btn-danger btn-sm deleteuser">Delete</button> &nbsp;'
+            "action": '<button data-userondelete="' + x.username + '" class="btn btn-danger btn-sm deleteuser">Delete</button> &nbsp;'
         }
         data.append(entry)
 
@@ -199,6 +198,3 @@ def delete_user():
             db.session.commit()
             return make_response(f"User {username} is succesfully deleted", 202)
         return make_response(f"Error deleting user {username}. The user that you want to delete might be already not exists.", 400)
-
-
-    pass
