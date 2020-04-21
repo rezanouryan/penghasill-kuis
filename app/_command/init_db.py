@@ -34,7 +34,7 @@ def create_users():
 
     # Add users
     admin = find_or_create_user(
-        'Admin', 'istrator', 'admin', 'Password1', admin_role)
+        'Administrator', 'admin', 'Password1', admin_role)
     user_1 = find_or_create_user(
         'Member', 'ship', 'member1', 'Password1')
     user_2 = find_or_create_user(
