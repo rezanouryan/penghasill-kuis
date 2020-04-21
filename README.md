@@ -4,7 +4,7 @@
 
 
 ## Setup dan cara penggunaan
-1 Install FLASK
+1. Install FLASK
 2. Jalankan `pip install -r requirements.txt` untuk menginstall paket yang dibutuhkan
 3. Jalankan `python manage.py init_db` untuk mengisi database dengan data dummy
 4. Jalankan `python server.py` untuk memulai server, akses di localhost:5000
