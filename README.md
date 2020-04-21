@@ -1,6 +1,5 @@
 # DB Quiz
 
-![alt tag](http://i.imgur.com/Bx7l18S.png)
 
 ## Setup dan cara penggunaan
 1. Jalankan `pip install -r requirements.txt` untuk menginstall paket yang dibutuhkan
