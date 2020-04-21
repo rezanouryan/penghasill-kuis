@@ -26,7 +26,7 @@ lxml==4.5.0
 Mako==1.1.2
 MarkupSafe==1.1.1
 mccabe==0.6.1
-nltk==3.2.2
+nltk==3.4.5
 passlib==1.7.2
 pycodestyle==2.5.0
 pycparser==2.20
